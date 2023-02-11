@@ -1,4 +1,7 @@
 fx_version 'cerulean'
+author 'byK3#7147'
+description 'Simple Command Invite Script'
+version '1.0.0'
 
 game 'gta5'
 
