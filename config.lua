@@ -18,6 +18,9 @@
 
 Config = {}
 
+Config.TargetPlayerJobless = true -- if true, the player you invite has to be the unemployed (Config.unemployedJob) to be able to accept the invite
+Config.InviteTime = 60 -- how long the player has to accept the invite in seconds
+
 Config.Jobs = { -- you can add jobs here
 
     ["vagos"] = true,
