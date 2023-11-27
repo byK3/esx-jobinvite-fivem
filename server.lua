@@ -42,7 +42,7 @@ function sendInviteK3 (sender, target)
 
 end
 
-RegisterCommand('invite', function(source, args, rawCommand)
+RegisterCommand(Config.Commands.invite, function(source, args, rawCommand)
     local xPlayer = ESX.GetPlayerFromId(source)
     local playerJob = xPlayer.job.name
     local playerJobGrade = xPlayer.job.grade
@@ -72,7 +72,7 @@ end, false)
 
 
 
-RegisterCommand('accept', function(source, args, rawCommand)
+RegisterCommand(Config.Commands.accept, function(source, args, rawCommand)
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.identifier
     local inviteData = invite[identifier]
@@ -98,6 +98,44 @@ RegisterCommand('accept', function(source, args, rawCommand)
         notify(senderPlayer.source, "The player " .. xPlayer.name .. " has accepted your invite!")
         invite[identifier] = nil
     end
+end, false)
+
+
+RegisterCommand(Config.Commands.decline, function(source, args, rawCommand)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local identifier = xPlayer.identifier
+    local inviteData = invite[identifier]
+
+    if not inviteData then
+        notify(xPlayer.source, "You don't have any pending invites!")
+        return
+    end
+
+    local senderPlayer = ESX.GetPlayerFromIdentifier(inviteData.sender)
+    if not senderPlayer then
+        notify(xPlayer.source, "The player who invited you is not online anymore! - Invite has been removed!")
+        invite[identifier] = nil
+        return
+    end
+
+    notify(xPlayer.source, "You have declined the invite for the job " .. inviteData.label .. "!")
+    notify(senderPlayer.source, "The player " .. xPlayer.name .. " has declined your invite!")
+    invite[identifier] = nil
+
+end, false)
+
+
+RegisterCommand(Config.Commands.check, function(source, args, rawCommand)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local identifier = xPlayer.identifier
+    local inviteData = invite[identifier]
+
+    if not inviteData then
+        notify(xPlayer.source, "You don't have any pending invites!")
+        return
+    end
+
+    notify(xPlayer.source, "You have a pending invite for the job " .. inviteData.label .. "!")
 end, false)
 
 
