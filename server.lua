@@ -1,7 +1,7 @@
 local invite = {}
 
 
-function starTimerK3Invite (src)
+function startTimerK3Invite (src)
     local xPlayer = ESX.GetPlayerFromId(src)
     local identifier = xPlayer.identifier
 
@@ -43,7 +43,7 @@ RegisterCommand('invite', function(source, args, rawCommand)
                         label = xPlayer.job.label,
                     }
                     invite[targetIdentifier] = data                    
-                    starTimerK3Invite (target.source)
+                    startTimerK3Invite (target.source)
                 else
                     notify(xPlayer.source, "The player " .. target.name .. " is already in a job!")
                 end
@@ -56,7 +56,7 @@ RegisterCommand('invite', function(source, args, rawCommand)
                     label = xPlayer.job.label,
                 }
                 invite[targetIdentifier] = data
-                starTimerK3Invite (target.source)
+                startTimerK3Invite (target.source)
             end
         else
             notify(xPlayer.source, "Invalid player ID!")
