@@ -14,6 +14,34 @@ function startTimerK3Invite (src)
     end)
 end
 
+
+function sendInviteK3 (sender, target)
+    local xPlayer = ESX.GetPlayerFromId(sender)
+    local xTarget = ESX.GetPlayerFromId(target)
+    local xIdentifier = xTarget.identifier
+
+    if invite[xIdentifier] then
+        local jobLabel = invite[xIdentifier].label
+        notify(xPlayer.source, "The player has already a pending invite")
+        return
+    end
+
+    notify(xTarget.source, "You have been invited to the job " .. xPlayer.job.label .. " by " .. xPlayer.name .. "!")
+    notify(xPlayer.source, "You have invited " .. xTarget.name .. " to the job " .. xPlayer.job.label .. "!")
+
+
+    local data = {
+        sender = xPlayer.identifier,
+        job = xPlayer.job.name,
+        label = xPlayer.job.label,
+    }
+
+    invite[xIdentifier] = data
+
+    startTimerK3Invite (xTarget.source)
+
+end
+
 RegisterCommand('invite', function(source, args, rawCommand)
     local xPlayer = ESX.GetPlayerFromId(source)
     local playerJob = xPlayer.job.name
@@ -25,38 +53,14 @@ RegisterCommand('invite', function(source, args, rawCommand)
         if tonumber(args[1]) ~= source and args[1] ~= nil and args[1] ~= "" and tonumber(args[1]) then
             local target = ESX.GetPlayerFromId(args[1])
             local targetIdentifier = target.identifier
-            local targetName = GetPlayerName(args[1])
-
-            if not invite[targetIdentifier] then
-                invite[targetIdentifier] = {}
-            else
-                notify(xPlayer.source, "The player " .. targetName .. " already has a pending invite!")
-                return
-            end
             if Config.Config.TargetPlayerJobless then
                 if target.getJob().name == Config.unemployedJob then
-                    notify(target.source , "You have been invited to the job " .. xPlayer.job.label .. " by " .. xPlayer.name .. "!")
-                    notify(xPlayer.source, "You have invited " .. targetName .. " to the job " .. xPlayer.job.label .. "!")
-                    local data = {
-                        sender = xPlayer.identifier,
-                        job = xPlayer.job.name,
-                        label = xPlayer.job.label,
-                    }
-                    invite[targetIdentifier] = data                    
-                    startTimerK3Invite (target.source)
+                    sendInviteK3 (xPlayer.source, target.source)
                 else
                     notify(xPlayer.source, "The player " .. target.name .. " is already in a job!")
                 end
             else
-                notify(target.source, "You have been invited to the job " .. xPlayer.job.label .. " by " .. xPlayer.name .. "!")
-                notify(xPlayer.source, "You have invited " .. targetName .. " to the job " .. xPlayer.job.label .. "!")
-                local data = {
-                    sender = xPlayer.identifier,
-                    job = xPlayer.job.name,
-                    label = xPlayer.job.label,
-                }
-                invite[targetIdentifier] = data
-                startTimerK3Invite (target.source)
+                sendInviteK3 (xPlayer.source, target.source)
             end
         else
             notify(xPlayer.source, "Invalid player ID!")
@@ -67,34 +71,31 @@ RegisterCommand('invite', function(source, args, rawCommand)
 end, false)
 
 
+
 RegisterCommand('accept', function(source, args, rawCommand)
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.identifier
-    local needJobless = Config.TargetPlayerJobless
-    local unemployed = Config.unemployedJob
+    local inviteData = invite[identifier]
 
-    if not invite[identifier] then
-        notify(xPlayer.source, "You do not have a pending invite!")
+    if not inviteData then
+        notify(xPlayer.source, "You don't have any pending invites!")
         return
     end
 
-    local sender = invite[identifier].sender
-    local senderSrc = ESX.GetPlayerFromIdentifier(sender).source
-    local job = invite[identifier].job
+    local senderPlayer = ESX.GetPlayerFromIdentifier(inviteData.sender)
+    if not senderPlayer then
+        notify(xPlayer.source, "The player who invited you is not online anymore!")
+        invite[identifier] = nil
+        return
+    end
 
-    if needJobless then
-        if xPlayer.getJob().name == unemployed then
-            xPlayer.setJob(job, 1)
-            notify(xPlayer.source, "You have been hired to the job " .. invite[identifier].label .. "!")
-            notify(senderSrc.soure, "The player " .. xPlayer.name .. " has accepted your invite!")
-            invite[identifier] = nil
-        else
-            notify(xPlayer.source, "You are already in a job!")
-        end
+    if Config.TargetPlayerJobless and xPlayer.getJob().name ~= Config.unemployedJob then
+        notify(xPlayer.source, "You are already in a job - you can't accept this invite!")
+        invite[identifier] = nil
     else
-        xPlayer.setJob(job, 0)
-        notify(xPlayer.source, "You have been hired to the job " .. invite[identifier].label .. "!")
-        notify(senderSrc.soure, "The player " .. xPlayer.name .. " has accepted your invite!")
+        xPlayer.setJob(inviteData.job, 0)
+        notify(xPlayer.source, "You have been hired for the job " .. inviteData.label .. "!")
+        notify(senderPlayer.source, "The player " .. xPlayer.name .. " has accepted your invite!")
         invite[identifier] = nil
     end
 end, false)
