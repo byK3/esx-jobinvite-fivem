@@ -139,7 +139,11 @@ RegisterCommand(Config.Commands.check, function(source, args, rawCommand)
 end, false)
 
 
+RegisterCommand('testo', function(source, args, rawCommand)
+    local xPlayer = ESX.GetPlayerFromId(source)
 
+    print (xPlayer.job.name)
+end, false)
 
 
 
