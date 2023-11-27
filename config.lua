@@ -1,6 +1,6 @@
 --[[ 
 
-    ==== Job Invite System - byK3#7147 ====
+    ==== Job Invite System - byK3 ====
 
     Invite players to your job with a simple command!
     Players can accept the invite with a simple command!
@@ -11,7 +11,7 @@
     Discord message me if you have any questions or need help.
 
 
-    ==== Job Invite System - byK3#7147 ====
+    ==== Job Invite System - byK3 ====
 
 ]]
 
@@ -23,10 +23,10 @@ Config.InviteTime = 60 -- how long the player has to accept the invite in second
 
 
 Config.Commands = {
-    ["invite"] = "invite", -- command to invite a player to your job
-    ["accept"] = "accept", -- command to accept an invite
-    ["decline"] = "decline", -- command to decline an invite
-    ["check"] = "check", -- command to check your invites
+    invite = "invite",
+    accept = "accept",
+    decline = "decline",
+    check = "check",
 }
 
 Config.Jobs = { -- you can add jobs here
